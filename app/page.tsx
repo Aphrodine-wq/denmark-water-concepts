@@ -89,7 +89,7 @@ export default function TierChooser() {
             return (
               <div key={t.key} className={`relative overflow-hidden rounded-2xl border-2 bg-white shadow-sm transition ${isPicked ? "border-slate-900 shadow-lg" : "border-transparent"}`}>
                 {t.popular && (
-                  <span className="absolute right-5 top-5 z-10 rounded-full bg-slate-900 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">Most popular</span>
+                  <span className="absolute left-5 top-5 z-10 rounded-full bg-slate-900 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-lg">Most popular</span>
                 )}
                 <div className="grid md:grid-cols-2">
                   <a href={t.url} target="_blank" rel="noopener noreferrer" className="group relative block">
