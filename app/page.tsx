@@ -4,42 +4,17 @@ import { useState } from "react";
 
 const VOTE_EMAIL = "jamesburge.mcm@gmail.com";
 
-const concepts = [
+const tiers = [
   {
     key: "civic",
-    name: "Civic Blue",
-    tag: "Trustworthy & municipal",
-    desc: "The classic, dependable utility look — clean blue, big readable type, the safe choice most residents expect.",
+    design: "Civic Blue",
+    tier: "Starter",
+    price: "$1,600",
+    accent: "#2563eb",
     url: "https://denmark-water-civic-blue.vercel.app",
     shot: "/shots/civic-blue.png",
-    accent: "#2563eb",
-  },
-  {
-    key: "modern",
-    name: "Modern",
-    tag: "Clean & editorial",
-    desc: "Bright, premium, magazine-style with a split layout. Stands apart from every other water-utility site.",
-    url: "https://denmark-water-modern-slate.vercel.app",
-    shot: "/shots/modern-slate.png",
-    accent: "#0e7490",
-  },
-  {
-    key: "community",
-    name: "Community Spring",
-    tag: "Warm & neighborly",
-    desc: "Friendly and approachable — soft greens, rounded shapes. Reads like a neighbor, not a bureaucracy.",
-    url: "https://denmark-water-community-spring.vercel.app",
-    shot: "/shots/community-spring.png",
-    accent: "#15803d",
-  },
-];
-
-const packages = [
-  {
-    key: "starter",
-    name: "Starter",
-    price: "$1,600",
-    blurb: "The essentials to get online and take payments.",
+    look: "Trustworthy & municipal — the classic, dependable utility look.",
+    why: "The essentials, done clean. Everything a resident needs to pay online and nothing they don't — a sharp, simple site that gets the job done.",
     features: [
       "Responsive website — home, services, water quality, contact",
       "Online bill-pay portal",
@@ -48,85 +23,101 @@ const packages = [
     ],
   },
   {
-    key: "standard",
-    name: "Standard",
+    key: "community",
+    design: "Community Spring",
+    tier: "Standard",
     price: "$2,200",
-    blurb: "Everything in Starter, plus live payments and self-service.",
+    accent: "#15803d",
+    url: "https://denmark-water-community-spring.vercel.app",
+    shot: "/shots/community-spring.png",
+    look: "Warm & neighborly — soft, friendly, reads like a neighbor.",
+    why: "A fuller site with self-service built in. Adds a rates page, a service-notice banner you control, autopay, and live card payments wired to your billing — more site, more value.",
     popular: true,
     features: [
+      "Everything in Starter, plus —",
+      "Rates page + service-notice banner",
       "Autopay enrollment for members",
-      "Live payment processor — wired to your billing",
-      "Service-notice manager (post outages yourself)",
-      "Go-live setup + staff training",
+      "Live payment processor + staff training",
     ],
   },
   {
-    key: "premium",
-    name: "Premium",
+    key: "modern",
+    design: "Modern",
+    tier: "Premium",
     price: "$3,000",
-    blurb: "The full system, fully integrated.",
+    accent: "#0e7490",
+    url: "https://denmark-water-modern-slate.vercel.app",
+    shot: "/shots/modern-slate.png",
+    look: "Clean & editorial — bright, premium, magazine-style.",
+    why: "The complete system, fully built out. A documents center, FAQ, two-way sync with your billing software, automatic reminders, and local SEO — the most site, and it looks it.",
     features: [
-      "Two-way sync with your billing software (live balances)",
-      "Text & email bill reminders",
-      "Document center — CCR reports, board minutes, agendas",
-      "Get-found local SEO setup + priority support",
+      "Everything in Standard, plus —",
+      "Documents center (CCR, minutes) + FAQ",
+      "Two-way billing sync — live balances",
+      "Text & email reminders + local SEO",
     ],
   },
 ];
 
-export default function ConceptChooser() {
-  const [design, setDesign] = useState<string | null>(null);
-  const [pkg, setPkg] = useState<string | null>(null);
+export default function TierChooser() {
+  const [pick, setPick] = useState<string | null>(null);
+  const chosen = tiers.find((t) => t.key === pick);
 
-  const chosenDesign = concepts.find((c) => c.key === design);
-  const chosenPkg = packages.find((p) => p.key === pkg);
-
-  const lines = [
-    chosenDesign ? `Design: ${chosenDesign.name} (${chosenDesign.url})` : "Design: (still deciding)",
-    chosenPkg ? `Package: ${chosenPkg.name} — ${chosenPkg.price} build + $60/mo` : "Package: (still deciding)",
-  ].join("\n");
-
-  const mailto = `mailto:${VOTE_EMAIL}?subject=${encodeURIComponent(
-    "Denmark Water — our pick"
-  )}&body=${encodeURIComponent(`Hi James,\n\nHere's what the board picked:\n\n${lines}\n\nLet's move forward.\n\nThanks,\nDenmark Water Association`)}`;
+  const mailto = chosen
+    ? `mailto:${VOTE_EMAIL}?subject=${encodeURIComponent(
+        `Denmark Water — we pick the ${chosen.tier} (${chosen.design})`
+      )}&body=${encodeURIComponent(
+        `Hi James,\n\nThe board picked the ${chosen.tier} package — the "${chosen.design}" site (${chosen.price} build + $60/mo).\n${chosen.url}\n\nLet's move forward.\n\nThanks,\nDenmark Water Association`
+      )}`
+    : "";
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800">
       <div className="mx-auto max-w-5xl px-5 py-12 md:py-16">
-        {/* Header */}
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">For review · Denmark Water Association</p>
         <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight text-slate-900 md:text-5xl">
-          Your new website — pick a look &amp; a package
+          Three websites, three packages
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-slate-600">
-          Three complete, working design directions and three packages. Open each design live, click around —
-          try <strong>Pay My Bill</strong> — then pick the look and the package you want. Hit send and we&apos;re off.
+          Each design is a complete, working site you can open and click through — try <strong>Pay My Bill</strong>.
+          The more you choose, the more we build. Pick the one that fits, hit send, and we&apos;re off. All packages run on <strong>$60/mo</strong> hosting &amp; care.
         </p>
 
-        {/* Step 1: design */}
-        <h2 className="mt-12 font-serif text-2xl font-semibold text-slate-900">1 · Pick your look</h2>
-        <div className="mt-6 space-y-8">
-          {concepts.map((c, i) => {
-            const isPicked = design === c.key;
+        <div className="mt-10 space-y-8">
+          {tiers.map((t) => {
+            const isPicked = pick === t.key;
             return (
-              <div key={c.key} className={`overflow-hidden rounded-2xl border-2 bg-white shadow-sm transition ${isPicked ? "border-slate-900 shadow-lg" : "border-transparent"}`}>
+              <div key={t.key} className={`relative overflow-hidden rounded-2xl border-2 bg-white shadow-sm transition ${isPicked ? "border-slate-900 shadow-lg" : "border-transparent"}`}>
+                {t.popular && (
+                  <span className="absolute right-5 top-5 z-10 rounded-full bg-slate-900 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">Most popular</span>
+                )}
                 <div className="grid md:grid-cols-2">
-                  <a href={c.url} target="_blank" rel="noopener noreferrer" className="group relative block">
+                  <a href={t.url} target="_blank" rel="noopener noreferrer" className="group relative block">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={c.shot} alt={`${c.name} preview`} className="h-full w-full object-cover object-top md:max-h-80" />
+                    <img src={t.shot} alt={`${t.design} preview`} className="h-full w-full object-cover object-top md:max-h-96" />
                     <span className="absolute inset-0 flex items-center justify-center bg-slate-900/0 text-lg font-bold text-white opacity-0 transition group-hover:bg-slate-900/40 group-hover:opacity-100">Open live site →</span>
                   </a>
                   <div className="flex flex-col p-7 md:p-8">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-bold uppercase tracking-wide text-slate-400">Option {i + 1}</span>
-                      <span className="h-2.5 w-2.5 rounded-full" style={{ background: c.accent }} />
+                    <div className="flex items-baseline justify-between gap-3">
+                      <div>
+                        <span className="text-xs font-bold uppercase tracking-wide" style={{ color: t.accent }}>{t.tier}</span>
+                        <h2 className="font-serif text-3xl font-semibold text-slate-900">{t.design}</h2>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-serif text-3xl font-semibold text-slate-900">{t.price}</div>
+                        <div className="text-xs text-slate-500">+ $60/mo</div>
+                      </div>
                     </div>
-                    <h3 className="mt-2 font-serif text-3xl font-semibold text-slate-900">{c.name}</h3>
-                    <p className="text-sm font-semibold" style={{ color: c.accent }}>{c.tag}</p>
-                    <p className="mt-3 text-slate-600">{c.desc}</p>
+                    <p className="mt-1 text-sm font-medium text-slate-500">{t.look}</p>
+                    <p className="mt-3 text-sm text-slate-600">{t.why}</p>
+                    <ul className="mt-4 space-y-1.5 text-sm text-slate-600">
+                      {t.features.map((f) => (
+                        <li key={f} className="flex gap-2"><span className="mt-0.5" style={{ color: t.accent }}>✓</span>{f}</li>
+                      ))}
+                    </ul>
                     <div className="mt-auto flex flex-wrap gap-3 pt-6">
-                      <a href={c.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-3 text-sm font-bold text-white transition hover:bg-slate-700">View live site →</a>
-                      <button onClick={() => setDesign(c.key)} className={`inline-flex items-center gap-2 rounded-lg border-2 px-5 py-3 text-sm font-bold transition ${isPicked ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 text-slate-700 hover:border-slate-900"}`}>{isPicked ? "✓ This is our look" : "Pick this look"}</button>
+                      <a href={t.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-3 text-sm font-bold text-white transition hover:bg-slate-700">View live site →</a>
+                      <button onClick={() => setPick(t.key)} className={`inline-flex items-center gap-2 rounded-lg border-2 px-5 py-3 text-sm font-bold transition ${isPicked ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 text-slate-700 hover:border-slate-900"}`}>{isPicked ? "✓ This is our pick" : "Pick this one"}</button>
                     </div>
                   </div>
                 </div>
@@ -135,53 +126,18 @@ export default function ConceptChooser() {
           })}
         </div>
 
-        {/* Step 2: package */}
-        <h2 className="mt-14 font-serif text-2xl font-semibold text-slate-900">2 · Pick your package</h2>
-        <p className="mt-2 text-slate-600">Each package includes everything in the one before it. All run on <strong>$60/mo</strong> hosting &amp; care.</p>
-        <div className="mt-6 grid gap-6 md:grid-cols-3">
-          {packages.map((p) => {
-            const isPicked = pkg === p.key;
-            return (
-              <button
-                key={p.key}
-                onClick={() => setPkg(p.key)}
-                className={`relative flex flex-col rounded-2xl border-2 bg-white p-7 text-left shadow-sm transition ${isPicked ? "border-slate-900 shadow-lg" : "border-transparent hover:border-slate-300"}`}
-              >
-                {p.popular && (
-                  <span className="absolute -top-3 left-7 rounded-full bg-slate-900 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">Most popular</span>
-                )}
-                <span className="font-serif text-xl font-semibold text-slate-900">{p.name}</span>
-                <span className="mt-2 font-serif text-4xl font-semibold text-slate-900">{p.price}</span>
-                <span className="text-sm text-slate-500">build · + $60/mo</span>
-                <span className="mt-3 text-sm text-slate-600">{p.blurb}</span>
-                <ul className="mt-4 space-y-2 text-sm text-slate-600">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex gap-2"><span className="mt-0.5 text-green-600">✓</span>{f}</li>
-                  ))}
-                </ul>
-                <span className={`mt-6 inline-flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-2.5 text-sm font-bold transition ${isPicked ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 text-slate-700"}`}>
-                  {isPicked ? "✓ Our package" : "Choose " + p.name}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Send */}
-        <div className="mt-12 rounded-2xl bg-slate-900 p-8 text-white md:p-10">
+        <div className="mt-10 rounded-2xl bg-slate-900 p-8 text-white md:p-10">
           <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
             <div>
               <p className="text-sm text-slate-400">Your pick</p>
               <p className="font-serif text-2xl font-semibold">
-                {chosenDesign ? chosenDesign.name : "Choose a look"}
-                <span className="text-slate-500"> · </span>
-                {chosenPkg ? `${chosenPkg.name} (${chosenPkg.price})` : "choose a package"}
+                {chosen ? `${chosen.tier} — ${chosen.design} · ${chosen.price}` : "Pick a package above"}
               </p>
-              <p className="mt-1 text-slate-300">Pick a look and a package above, then send it over.</p>
+              <p className="mt-1 text-slate-300">Choose the one you want, then send it over and we&apos;ll get started.</p>
             </div>
             <a
               href={mailto}
-              className={`inline-flex items-center gap-2 rounded-lg px-7 py-4 text-lg font-bold transition ${design || pkg ? "bg-white text-slate-900 hover:bg-slate-100" : "pointer-events-none bg-slate-700 text-slate-400"}`}
+              className={`inline-flex items-center gap-2 rounded-lg px-7 py-4 text-lg font-bold transition ${chosen ? "bg-white text-slate-900 hover:bg-slate-100" : "pointer-events-none bg-slate-700 text-slate-400"}`}
             >
               Send our pick →
             </a>
