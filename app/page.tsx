@@ -6,23 +6,6 @@ const VOTE_EMAIL = "jamesburge.mcm@gmail.com";
 
 const tiers = [
   {
-    key: "civic",
-    design: "Civic Blue",
-    tier: "Starter",
-    price: "$1,600",
-    accent: "#2563eb",
-    url: "https://denmark-water-civic-blue.vercel.app",
-    shot: "/shots/civic-blue.png",
-    look: "Trustworthy & municipal — the classic, dependable utility look.",
-    why: "The essentials, done clean. Everything a resident needs to pay online and nothing they don't — a sharp, simple site that gets the job done.",
-    features: [
-      "Responsive website — home, services, water quality, contact",
-      "Online bill-pay portal",
-      "Report-a-leak & start/stop request forms",
-      "Hosting, SSL, monitoring & support",
-    ],
-  },
-  {
     key: "community",
     design: "Community Spring",
     tier: "Standard",
@@ -34,8 +17,8 @@ const tiers = [
     why: "A fuller site with self-service built in. Adds a rates page, a service-notice banner you control, autopay, and live card payments wired to your billing — more site, more value.",
     popular: true,
     features: [
-      "Everything in Starter, plus —",
-      "Rates page + service-notice banner",
+      "Responsive website — home, rates, water quality, contact",
+      "Online bill-pay portal + service-notice banner",
       "Autopay enrollment for members",
       "Live payment processor + staff training",
     ],
@@ -76,7 +59,7 @@ export default function TierChooser() {
       <div className="mx-auto max-w-5xl px-5 py-12 md:py-16">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">For review · Denmark Water Association</p>
         <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight text-slate-900 md:text-5xl">
-          Three websites, three packages
+          Two websites, two packages
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-slate-600">
           Each design is a complete, working site you can open and click through — try <strong>Pay My Bill</strong>.
