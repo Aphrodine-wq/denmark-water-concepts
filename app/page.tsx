@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const VOTE_EMAIL = "jamesburge.mcm@gmail.com";
+const VOTED_KEY = "dw-vote-choice";
 
 const price = "$2,000 flat";
 const hosting = "$200/mo";
@@ -18,7 +19,7 @@ const designs = [
   {
     key: "community",
     design: "Community Spring",
-    accent: "#b45309",
+    accent: "#62472f",
     url: "https://denmark-water-community-spring.vercel.app",
     shot: "/shots/community-spring.png",
     look: "Warm & neighborly — soft, friendly, reads like a neighbor.",
@@ -31,19 +32,72 @@ const designs = [
     shot: "/shots/modern-slate.png",
     look: "Clean & editorial — bright, premium, magazine-style.",
   },
-];
+] as const;
+
+type Tally = Record<string, number>;
 
 export default function DesignChooser() {
-  const [pick, setPick] = useState<string | null>(null);
-  const chosen = designs.find((d) => d.key === pick);
+  const [voted, setVoted] = useState<string | null>(null);
+  const [voterName, setVoterName] = useState("");
+  const [tally, setTally] = useState<Tally | null>(null);
+  const [votingDisabled, setVotingDisabled] = useState(false);
+  const [castingKey, setCastingKey] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const mailto = chosen
-    ? `mailto:${VOTE_EMAIL}?subject=${encodeURIComponent(
-        `Denmark Water — we pick "${chosen.design}"`
-      )}&body=${encodeURIComponent(
-        `Hi James,\n\nThe board picked the "${chosen.design}" design (${price} build + ${hosting}).\n${chosen.url}\n\nLet's move forward.\n\nThanks,\nDenmark Water Association`
-      )}`
-    : "";
+  useEffect(() => {
+    setVoted(localStorage.getItem(VOTED_KEY));
+    fetch("/api/vote")
+      .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok) {
+          setVotingDisabled(true);
+          setError(data.error ?? "Voting isn't connected yet.");
+          return;
+        }
+        setTally(data.tally);
+      })
+      .catch(() => {
+        setVotingDisabled(true);
+        setError("Couldn't reach the vote count.");
+      });
+  }, []);
+
+  const totalVotes = tally ? Object.values(tally).reduce((a, b) => a + b, 0) : 0;
+
+  async function castVote(key: string) {
+    setCastingKey(key);
+    setError(null);
+    try {
+      const res = await fetch("/api/vote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ design: key, voter: voterName || undefined }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Couldn't cast your vote.");
+        return;
+      }
+      setTally(data.tally);
+      setVoted(key);
+      localStorage.setItem(VOTED_KEY, key);
+    } catch {
+      setError("Couldn't reach the vote count — check your connection and try again.");
+    } finally {
+      setCastingKey(null);
+    }
+  }
+
+  const votedDesign = designs.find((d) => d.key === voted);
+  const mailto = `mailto:${VOTE_EMAIL}?subject=${encodeURIComponent(
+    "Denmark Water — website vote results"
+  )}&body=${encodeURIComponent(
+    tally
+      ? `Hi James,\n\nCurrent vote count:\n${designs
+          .map((d) => `${d.design}: ${tally[d.key] ?? 0}`)
+          .join("\n")}\n\nThanks,\nDenmark Water Association`
+      : "Hi James,\n\n"
+  )}`;
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800">
@@ -53,16 +107,45 @@ export default function DesignChooser() {
           One site, two looks
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-slate-600">
-          Same build, same price — just pick the look that fits. Each design is a complete, working
+          Same build, same price — just vote for the look that fits. Each design is a complete, working
           site you can open and click through — try <strong>Pay My Bill</strong>. <strong>{price}</strong> to
           build, <strong>{hosting}</strong> hosting &amp; care after that.
         </p>
 
+        {!voted && !votingDisabled && (
+          <label className="mt-6 block max-w-sm">
+            <span className="text-sm font-semibold text-slate-600">Your name (optional, for the record)</span>
+            <input
+              type="text"
+              value={voterName}
+              onChange={(e) => setVoterName(e.target.value)}
+              placeholder="e.g. Board member name"
+              className="mt-1.5 w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-slate-900 outline-none focus:border-slate-900"
+            />
+          </label>
+        )}
+
+        {votingDisabled && (
+          <div className="mt-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+            Voting isn&apos;t connected yet — {error} You can still open each site and pick with the buttons below;
+            votes just won&apos;t be counted until storage is connected.
+          </div>
+        )}
+
+        {voted && (
+          <div className="mt-6 rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-900">
+            ✓ Your vote for <strong>{votedDesign?.design}</strong> is recorded. Thanks!
+          </div>
+        )}
+
         <div className="mt-10 space-y-8">
           {designs.map((d) => {
-            const isPicked = pick === d.key;
+            const votes = tally?.[d.key] ?? 0;
+            const pct = totalVotes ? Math.round((votes / totalVotes) * 100) : 0;
+            const isMyVote = voted === d.key;
+            const isCasting = castingKey === d.key;
             return (
-              <div key={d.key} className={`relative overflow-hidden rounded-2xl border-2 bg-white shadow-sm transition ${isPicked ? "border-slate-900 shadow-lg" : "border-transparent"}`}>
+              <div key={d.key} className={`relative overflow-hidden rounded-2xl border-2 bg-white shadow-sm transition ${isMyVote ? "border-slate-900 shadow-lg" : "border-transparent"}`}>
                 <div className="grid md:grid-cols-2">
                   <a href={d.url} target="_blank" rel="noopener noreferrer" className="group relative block">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -83,9 +166,28 @@ export default function DesignChooser() {
                         <li key={f} className="flex gap-2"><span className="mt-0.5" style={{ color: d.accent }}>✓</span>{f}</li>
                       ))}
                     </ul>
+
+                    {!votingDisabled && tally && (
+                      <div className="mt-5">
+                        <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
+                          <span>{votes} vote{votes === 1 ? "" : "s"}</span>
+                          <span>{pct}%</span>
+                        </div>
+                        <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-100">
+                          <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: d.accent }} />
+                        </div>
+                      </div>
+                    )}
+
                     <div className="mt-auto flex flex-wrap gap-3 pt-6">
                       <a href={d.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-3 text-sm font-bold text-white transition hover:bg-slate-700">View live site →</a>
-                      <button onClick={() => setPick(d.key)} className={`inline-flex items-center gap-2 rounded-lg border-2 px-5 py-3 text-sm font-bold transition ${isPicked ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 text-slate-700 hover:border-slate-900"}`}>{isPicked ? "✓ This is our pick" : "Pick this one"}</button>
+                      <button
+                        onClick={() => castVote(d.key)}
+                        disabled={!!voted || votingDisabled || isCasting}
+                        className={`inline-flex items-center gap-2 rounded-lg border-2 px-5 py-3 text-sm font-bold transition disabled:cursor-not-allowed ${isMyVote ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 text-slate-700 hover:border-slate-900 disabled:opacity-40"}`}
+                      >
+                        {isCasting ? "Voting…" : isMyVote ? "✓ Your vote" : "Vote for this design"}
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -94,20 +196,24 @@ export default function DesignChooser() {
           })}
         </div>
 
+        {error && !votingDisabled && (
+          <p className="mt-4 text-sm font-semibold text-red-600">{error}</p>
+        )}
+
         <div className="mt-10 rounded-2xl bg-slate-900 p-8 text-white md:p-10">
           <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
             <div>
-              <p className="text-sm text-slate-400">Your pick</p>
+              <p className="text-sm text-slate-400">Live results</p>
               <p className="font-serif text-2xl font-semibold">
-                {chosen ? `${chosen.design} · ${price}` : "Pick a design above"}
+                {tally ? `${totalVotes} vote${totalVotes === 1 ? "" : "s"} so far` : votingDisabled ? "Voting not connected" : "Loading…"}
               </p>
-              <p className="mt-1 text-slate-300">Choose the one you want, then send it over and we&apos;ll get started.</p>
+              <p className="mt-1 text-slate-300">Everyone who opens this page can vote once. Results update live for all viewers.</p>
             </div>
             <a
               href={mailto}
-              className={`inline-flex items-center gap-2 rounded-lg px-7 py-4 text-lg font-bold transition ${chosen ? "bg-white text-slate-900 hover:bg-slate-100" : "pointer-events-none bg-slate-700 text-slate-400"}`}
+              className="inline-flex items-center gap-2 rounded-lg bg-white px-7 py-4 text-lg font-bold text-slate-900 transition hover:bg-slate-100"
             >
-              Send our pick →
+              Email me the results →
             </a>
           </div>
         </div>
