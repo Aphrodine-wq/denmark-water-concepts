@@ -108,7 +108,14 @@ export default function DesignChooser() {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800">
       <div className="mx-auto max-w-5xl px-5 py-12 md:py-16">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">For review · Denmark Water Association</p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">For review · Denmark Water Association</p>
+          {!votingDisabled && tally && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-3.5 py-1.5 text-xs font-bold text-white">
+              {totalVotes} vote{totalVotes === 1 ? "" : "s"} so far
+            </span>
+          )}
+        </div>
         <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight text-slate-900 md:text-5xl">
           One site, two looks
         </h1>
