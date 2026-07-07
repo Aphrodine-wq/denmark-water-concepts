@@ -58,3 +58,11 @@ export async function getRecentVotes(limit = 50): Promise<VoteEntry[]> {
     return rows.map((row) => ({ design: row.design, voter: row.voter, ts: new Date(row.created_at).getTime() }));
   });
 }
+
+export async function resetVotes(): Promise<Tally> {
+  return wrap(async () => {
+    await query(`DELETE FROM vote_log`);
+    await query(`UPDATE vote_tally SET count = 0`);
+    return getTally();
+  });
+}

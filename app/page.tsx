@@ -88,6 +88,12 @@ export default function DesignChooser() {
     }
   }
 
+  function clearVote() {
+    localStorage.removeItem(VOTED_KEY);
+    setVoted(null);
+    setVoterName("");
+  }
+
   const votedDesign = designs.find((d) => d.key === voted);
   const mailto = `mailto:${VOTE_EMAIL}?subject=${encodeURIComponent(
     "Denmark Water — website vote results"
@@ -134,7 +140,10 @@ export default function DesignChooser() {
 
         {voted && (
           <div className="mt-6 rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-900">
-            ✓ Your vote for <strong>{votedDesign?.design}</strong> is recorded. Thanks!
+            ✓ Your vote for <strong>{votedDesign?.design}</strong> is recorded. Thanks!{" "}
+            <button onClick={clearVote} className="font-semibold underline underline-offset-2 hover:text-emerald-700">
+              Not you? Clear this device so someone else can vote →
+            </button>
           </div>
         )}
 
