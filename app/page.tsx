@@ -113,6 +113,21 @@ export default function DesignChooser() {
           Which look fits us better?
         </h1>
 
+        {!votingDisabled && tally && totalVotes > 0 && (
+          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-sm">
+            {designs.map((d) => {
+              const votes = tally[d.key] ?? 0;
+              const pct = totalVotes ? Math.round((votes / totalVotes) * 100) : 0;
+              return (
+                <span key={d.key} className="inline-flex items-center gap-1.5 font-semibold text-slate-700">
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: d.accent }} />
+                  {d.design}: {votes} ({pct}%)
+                </span>
+              );
+            })}
+          </div>
+        )}
+
         {!voted && !votingDisabled && (
           <input
             type="text"
@@ -178,7 +193,7 @@ export default function DesignChooser() {
           <p className="mt-4 text-sm font-semibold text-red-600">{error}</p>
         )}
 
-        <p className="mt-8 text-sm text-slate-500">Same either way: {price} to build, {hosting} hosting &amp; care.</p>
+        <p className="mt-8 text-base font-bold text-slate-800">Same either way: {price} to build, {hosting} hosting &amp; care.</p>
 
         <footer className="mt-6 flex flex-col items-center justify-between gap-2 border-t border-slate-300 pt-6 text-sm text-slate-500 md:flex-row">
           <span>Prepared by <strong className="text-slate-700">Walt Builds</strong></span>
